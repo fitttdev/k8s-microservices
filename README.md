@@ -1,37 +1,40 @@
 1. Setup Ingress Controller: Create a file called `ingress.yaml`
   ```yaml
-  apiVersion: networking.k8s.io/v1
-  kind: Ingress
+  # Deployment
+  apiVersion: apps/v1
+  kind: Deployment
   metadata:
-    name: frontend-ingress
+    name: backend2-deployment
   spec:
-    ingressClassName: nginx
-    rules:
-      - host: fitdev.com
-        http:
-          paths:
-            - path: /
-              pathType: Prefix
-              backend:
-                service:
-                  name: frontend-service
-                  port:
-                    number: 80
-            - path: /api/
-              pathType: Prefix
-              backend:
-                service:
-                  name: gateway-service
-                  port:
-                    number: 8080
-            - path: /bypass-gw
-              pathType: Prefix
-              backend:
-                service:
-                  name: backend1-service
-                  port:
-                    number: 3000
+    replicas: 1
+    selector:
+      matchLabels:
+        app: backend2
+    template:
+      metadata:
+        labels:
+          app: backend2
+      spec:
+        containers:
+          - name: backend2
+            image: fittdev/fd:k8s-backend2-1.0.0
+            ports:
+              - containerPort: 3001
+  ---
+  # Service
+  apiVersion: v1
+  kind: Service
+  metadata:
+    name: backend2-service
+  spec:
+    selector:
+      app: backend2
+    ports:
+      - protocol: TCP
+        port: 3001
+        targetPort: 3001
   ```
+  `kubectl apply -f https://raw.githubusercontent.com/kubernetes/ingress-nginx/controller-v1.10.0/deploy/static/provider/cloud/deploy.yaml`
 2. Setup Frontend Configuration: Create a file called `frontend.yaml`
   ```yaml
   # Deployment
