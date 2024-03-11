@@ -1,39 +1,36 @@
 1. Setup Ingress Controller: Create a file called `ingress.yaml`
   ```yaml
-  # Deployment
-  apiVersion: apps/v1
-  kind: Deployment
+  apiVersion: networking.k8s.io/v1
+  kind: Ingress
   metadata:
-    name: frontend-deployment
+    name: frontend-ingress
   spec:
-    replicas: 2
-    selector:
-      matchLabels:
-        app: frontend
-    template:
-      metadata:
-        labels:
-          app: frontend
-      spec:
-        containers:
-          - name: frontend
-            image: fittdev/fd:k8s-frontend-1.0.0
-            ports:
-              - containerPort: 80
-  # Service
-  ---
-  apiVersion: v1
-  kind: Service
-  metadata:
-    name: frontend-service
-  spec:
-    type: ClusterIP
-    selector:
-      app: frontend
-    ports:
-      - protocol: TCP
-        port: 80
-        targetPort: 80
+    ingressClassName: nginx
+    rules:
+      - host: fitdev.com
+        http:
+          paths:
+            - path: /
+              pathType: Prefix
+              backend:
+                service:
+                  name: frontend-service
+                  port:
+                    number: 80
+            - path: /api/
+              pathType: Prefix
+              backend:
+                service:
+                  name: gateway-service
+                  port:
+                    number: 8080
+            - path: /bypass-gw
+              pathType: Prefix
+              backend:
+                service:
+                  name: backend1-service
+                  port:
+                    number: 3000
   ```
 2. Setup Frontend Configuration: Create a file called `frontend.yaml`
   ```yaml
@@ -43,7 +40,7 @@
   metadata:
     name: frontend-deployment
   spec:
-    replicas: 2
+    replicas: 1
     selector:
       matchLabels:
         app: frontend
@@ -80,7 +77,7 @@
   metadata:
     name: gateway-deployment
   spec:
-    replicas: 2
+    replicas: 1
     selector:
       matchLabels:
         app: gateway
@@ -116,7 +113,7 @@
   metadata:
     name: backend1-deployment
   spec:
-    replicas: 2
+    replicas: 1
     selector:
       matchLabels:
         app: backend1
@@ -152,7 +149,7 @@
   metadata:
     name: backend2-deployment
   spec:
-    replicas: 2
+    replicas: 1
     selector:
       matchLabels:
         app: backend2
