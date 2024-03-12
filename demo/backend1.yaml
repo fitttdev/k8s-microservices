@@ -1,0 +1,33 @@
+# Deployment
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: backend1-deployment
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: backend1
+  template:
+    metadata:
+      labels:
+        app: backend1
+    spec:
+      containers:
+        - name: backend1
+          image: fittdev/fd:k8s-backend1-1.0.0
+          ports:
+            - containerPort: 3000
+---
+# Service
+apiVersion: v1
+kind: Service
+metadata:
+  name: backend1-service
+spec:
+  selector:
+    app: backend1
+  ports:
+    - protocol: TCP
+      port: 3000
+      targetPort: 3000
