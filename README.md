@@ -32,7 +32,7 @@
                 service:
                   name: backend1-service
                   port:
-                  number: 3000
+                    number: 3000
   ```
 3. Setup Frontend Configuration: Create a file called `frontend.yaml`
   ```yaml
