@@ -1,0 +1,42 @@
+# Deployment
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: frontend-deployment
+# Desired State
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: frontend
+      # my_app: my_app
+  template:
+    metadata:
+      labels:
+        app: frontend
+        # my_app: my_app
+    spec:
+      containers:
+        - name: frontend
+          image: fittdev/fd:k8s-frontend-1.0.0
+          ports:
+            - containerPort: 80
+        # - name: my_app
+        #   image: fittdev/fd:k8s-my_app-1.0.0
+        #   ports:
+        #     - containerPort: 8000
+---
+# Service
+apiVersion: v1
+kind: Service
+metadata:
+  name: frontend-service
+spec:
+  type: ClusterIP
+  selector:
+    app: frontend
+    # my_app: my_app
+  ports:
+    - protocol: TCP
+      port: 80
+      targetPort: 80 # must match with containerPort
